@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # to_categorical reverse
     print('to_categorical_4d_reverse')
     train_y_ = to_categorical_4d_reverse(train_y_, _map)
-
+    
     # Check if there're the same
     print('origin shape: ', np.shape(train_y), '\tshape after reversed: ', np.shape(train_y_))
     print('Reversed result is the same? \t', np.array_equal(train_y, train_y_))
