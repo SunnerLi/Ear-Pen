@@ -9,29 +9,35 @@ train_anns = []
 test_imgs = []
 test_anns = []
 
-def nms(img, threshold=200):
+def nms(img, threshold=0.2):
     """
         Do the non-maximun supression toward the image
 
         Arg:    img         - The image you want to convert
                 threshold   - The maximun threshold
     """
-    res = np.zeros_like(img)
-    idx = img > threshold
-    res[idx] = 255
+    res = np.copy(img)
+    channel = np.shape(img)[-1]
+    for i in range(channel):
+        one_channel_img = img[:, :, i]
+        idx =  one_channel_img < threshold
+        total = one_channel_img > -1
+        res[idx, i] = 0
     return res
 
-def add(path, list_obj, down_scale=1.0):
+def add(path, list_obj, with_nms=False, down_scale=1.0):
     """
         Add the image array to the specific list for the specific image path
 
         Arg:    path        - The path of the image
                 list_obj    - The list object that you want to append
     """
-    for img_name in os.listdir(path):
+    img_name_list = sorted(os.listdir(path))
+    for img_name in img_name_list:
         img = io.imread(path + '/' + img_name)[:, :, :3]
         img = transform.rescale(img, 1.0 / float(down_scale), mode='constant')
-        img = nms(img)
+        if with_nms == True:
+            img = nms(img)        
         list_obj.append(img)
 
 if __name__ == '__main__':
@@ -41,10 +47,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load images and annotations
-    add('train/img', train_imgs, args.scale)
-    add('train/tag', train_anns, args.scale)
-    add('test/img', test_imgs, args.scale)
-    add('test/tag', test_anns, args.scale)
+    add('train/img', train_imgs, with_nms=False, down_scale=args.scale)
+    add('train/tag', train_anns, with_nms=True, down_scale=args.scale)
+    add('test/img', test_imgs, with_nms=False, down_scale=args.scale)
+    add('test/tag', test_anns, with_nms=True, down_scale=args.scale)
 
     # Treat as numpy object
     train_imgs = np.asarray(train_imgs)

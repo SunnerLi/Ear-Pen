@@ -1,3 +1,4 @@
+import numpy as np
 import h5py
 import os
 
@@ -11,5 +12,5 @@ def load_data(path='./ear_pen.h5'):
     if not os.path.exists(path):
         print('You should generate the ear_pen hdf5 file first...')
         exit()
-    f = h5py.File(path)
-    return (f['train_x'], f['train_y']), (f['test_x'], f['test_y'])
+    with h5py.File(path, 'r') as f:
+        return (np.asarray(f['train_x']), np.asarray(f['train_y'])), (np.asarray(f['test_x']), np.asarray(f['test_y']))
