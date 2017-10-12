@@ -16,8 +16,6 @@ import numpy as np
 if __name__ == '__main__':
     # Load data and normalize
     (train_x, train_y), (test_x, test_y) = ear_pen.load_data()
-    train_y = np.asarray(train_y)
-    train_y = np.round(train_y/256, decimals=1)
 
     # to_categorical
     print('to_categorical_4d')

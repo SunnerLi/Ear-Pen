@@ -9,7 +9,7 @@ train_anns = []
 test_imgs = []
 test_anns = []
 
-def nms(img, threshold=0.2):
+def nms(img, threshold=0.9999):
     """
         Do the non-maximun supression toward the image
 
@@ -21,7 +21,6 @@ def nms(img, threshold=0.2):
     for i in range(channel):
         one_channel_img = img[:, :, i]
         idx =  one_channel_img < threshold
-        total = one_channel_img > -1
         res[idx, i] = 0
     return res
 

@@ -8,7 +8,12 @@ import os
 temp_file_name1 = 'tmp1.h5'
 temp_file_name2 = 'tmp2.h5'
 
-def load_data(path='./ear_pen.h5'):
+def __load_data(path='./ear_pen.h5'):
+    """
+        Load the essential training data.
+        You shouldn't use this function directly.
+        This function is copied from ../load/
+    """
     if not os.path.exists(path):
         print('You should generate the ear_pen hdf5 file first...')
         exit()
@@ -16,9 +21,14 @@ def load_data(path='./ear_pen.h5'):
         return (np.asarray(f['train_x']), np.asarray(f['train_y'])), (np.asarray(f['test_x']), np.asarray(f['test_y']))
 
 def process1(imgs, anns):
+    """
+        Generate the training data whose annotations aren't change
+        
+        Arg:    imgs    - The array of original training images
+                anns    - The array of original training annotations
+        Ret:    The lists of images and annotations with generated data
+    """
     seq_list = [
-        iaa.Sequential([iaa.Fliplr(1.0, name='horizontial flip')]),
-        iaa.Sequential([iaa.Flipud(1.0, name='vertical flip')]),
         iaa.Sometimes(1.0, iaa.Multiply((0.5, 1.5)), name='random multiply'),
         iaa.Sometimes(1.0, iaa.Add(20), name='add 20'),
         iaa.Sometimes(1.0, iaa.GaussianBlur(sigma=(0.5, 1.0), name='random gaussian blur')),
@@ -28,14 +38,24 @@ def process1(imgs, anns):
     for seq in seq_list:
         seq = seq.to_deterministic()    
         aug_imgs = seq.augment_images(origin_imgs)
-        aug_anns = seq.augment_images(origin_anns)
+        aug_anns = origin_anns
         imgs = np.concatenate((imgs, aug_imgs))
         anns = np.concatenate((anns, aug_anns))
         print('op name: ', seq.name, 'size: ', np.shape(aug_imgs))
     return imgs, anns
 
 def process2(imgs, anns):
+    """
+        Generate the training data whose annotations would be changed
+        
+        Arg:    imgs    - The array of original training images
+                anns    - The array of original training annotations
+        Ret:    The lists of images and annotations with generated data
+    """
+    origin_batch_num = np.shape(imgs)[0]
     seq_list = [
+        iaa.Sequential([iaa.Fliplr(1.0, name='horizontial flip')]),
+        iaa.Sequential([iaa.Flipud(1.0, name='vertical flip')]),
         iaa.Sometimes(1.0, iaa.Affine(scale=(0.75, 1.75), name='random affine scale')),
         iaa.Sometimes(1.0, iaa.Affine(translate_percent=1.25, name='affine translate')),
         iaa.Sometimes(1.0, iaa.Affine(shear=(-45, 45), name='random shear')),
@@ -50,12 +70,12 @@ def process2(imgs, anns):
         imgs = np.concatenate((imgs, aug_imgs))
         anns = np.concatenate((anns, aug_anns))
         print('op name: ', seq.name, 'size: ', np.shape(aug_imgs))
-    return imgs, anns
+    return imgs[origin_batch_num:, :, :, :], anns[origin_batch_num:, :, :, :]
 
 
 if __name__ == '__main__':
     # Load data and normalize
-    (train_x, train_y), (test_x, test_y) = load_data()
+    (train_x, train_y), (test_x, test_y) = __load_data()
 
     # Deal with first part
     print('<< Generate >>')
