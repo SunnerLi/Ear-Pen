@@ -34,7 +34,7 @@ def add(path, list_obj, with_nms=False, down_scale=1.0):
     img_name_list = sorted(os.listdir(path))
     for img_name in img_name_list:
         img = io.imread(path + '/' + img_name)[:, :, :3]
-        img = transform.rescale(img, 1.0 / float(down_scale), mode='constant')
+        img = transform.rescale(img, 1.0 / float(down_scale), mode='constant') * 255
         if with_nms == True:
             img = nms(img)        
         list_obj.append(img)
@@ -52,10 +52,10 @@ if __name__ == '__main__':
     add('test/tag', test_anns, with_nms=True, down_scale=args.scale)
 
     # Treat as numpy object
-    train_imgs = np.asarray(train_imgs)
-    train_anns = np.asarray(train_anns)
-    test_imgs = np.asarray(test_imgs)
-    test_anns = np.asarray(test_anns)
+    train_imgs = np.asarray(train_imgs, dtype=np.uint8)
+    train_anns = np.asarray(train_anns, dtype=np.uint8)
+    test_imgs = np.asarray(test_imgs, dtype=np.uint8)
+    test_anns = np.asarray(test_anns, dtype=np.uint8)
 
     # Save as .h5 file
     with h5py.File('ear_pen.h5', 'w') as f:

@@ -57,7 +57,7 @@ def process2(imgs, anns):
         iaa.Sequential([iaa.Fliplr(1.0, name='horizontial flip')]),
         iaa.Sequential([iaa.Flipud(1.0, name='vertical flip')]),
         iaa.Sometimes(1.0, iaa.Affine(scale=(0.75, 1.75), name='random affine scale')),
-        iaa.Sometimes(1.0, iaa.Affine(translate_percent=1.25, name='affine translate')),
+        iaa.Sometimes(1.0, iaa.Affine(translate_percent=(-0.5, 0.5), name='affine translate')),
         iaa.Sometimes(1.0, iaa.Affine(shear=(-45, 45), name='random shear')),
         iaa.Sometimes(1.0, iaa.Affine(order=imgaug.ALL, name='all'))
     ]
