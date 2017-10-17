@@ -1,5 +1,6 @@
 from imgaug import augmenters as iaa
 from imgaug import parameters as iap
+from build import nms
 import numpy as np
 import imgaug
 import h5py
@@ -19,6 +20,12 @@ def __load_data(path='./ear_pen.h5'):
         exit()
     with h5py.File(path, 'r') as f:
         return (np.asarray(f['train_x']), np.asarray(f['train_y'])), (np.asarray(f['test_x']), np.asarray(f['test_y']))
+
+def nms_tensor(tensor):
+    res = []
+    for ann in tensor:
+        res.append(nms(ann))
+    return np.asarray(res, dtype=np.uint8)
 
 def process1(imgs, anns):
     """
@@ -67,6 +74,7 @@ def process2(imgs, anns):
         seq = seq.to_deterministic()    
         aug_imgs = seq.augment_images(origin_imgs)
         aug_anns = seq.augment_images(origin_anns)
+        aug_anns = nms_tensor(aug_anns)
         imgs = np.concatenate((imgs, aug_imgs))
         anns = np.concatenate((anns, aug_anns))
         print('op name: ', seq.name, 'size: ', np.shape(aug_imgs))

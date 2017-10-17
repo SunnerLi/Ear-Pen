@@ -9,7 +9,7 @@ train_anns = []
 test_imgs = []
 test_anns = []
 
-def nms(img, threshold=0.9999):
+def nms(img, threshold=254.99):
     """
         Do the non-maximun supression toward the image
 
